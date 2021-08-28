@@ -36,43 +36,39 @@ public class ApiDriver {
      *          ▀▀▀▀▀▀▀▀▀▀▀▀
      *
      */
-    public static final String HOSTNAME = "https://api-goerli.etherscan.io";
-
+    public static final String HOSTNAME = "https://blockstream.info";
     public String QueryApi() throws IOException {
-        final String uri = "/api";
-        final String queryParams = "?module=account&action=balance&address=0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae&tag=latest";
-        final String apiKey = "&apikey=xxx"; //don't commit the real api key
+        final String uri = "/api/block-height/680000";
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(HOSTNAME + uri + queryParams + apiKey);
+        HttpGet getBlockHashGivenHeight = new HttpGet(HOSTNAME + uri);
 
+        //GET /block-height/:height
+        //using the height 680000 get the block hash
         CloseableHttpResponse getResponse = null;
+        String blockHash = "";
         try {
-            getResponse = httpclient.execute(httpGet);
-            String responseBody = EntityUtils.toString(getResponse.getEntity(), StandardCharsets.UTF_8);
-            Header[] headers = getResponse.getAllHeaders();
-            return String.valueOf(getResponse.getStatusLine().getStatusCode());
+            getResponse = httpclient.execute(getBlockHashGivenHeight);
+            blockHash = EntityUtils.toString(getResponse.getEntity(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             getResponse.close();
         }
 
-//        HttpPost httpPost = new HttpPost("http://targethost/login");
-//        String encodedJson = "{ \"wouldIUseAClassForThis\": \"yes\" }";
-//        httpPost.setEntity(new StringEntity(encodedJson));
-//        CloseableHttpResponse postResponse = httpclient.execute(httpPost);
-//
-//        try {
-//            postResponse = httpclient.execute(httpPost);
-//            Header[] headers = postResponse.getAllHeaders();
-//            String responseBody = EntityUtils.toString(postResponse.getEntity(), StandardCharsets.UTF_8);
-//            return String.valueOf(postResponse.getStatusLine().getStatusCode());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            postResponse.close();
-//        }
+        //using the block hash
+        //GET /block/:hash/txs[/:start_index]
+        final String uri = "api/block/"+blockHash+"/txs/";
+        HttpGet getTransactionsGiven = new HttpGet(HOSTNAME + uri);
+        //loop per 25
+        try {
+            getResponse = httpclient.execute(getBlockHashGivenHeight);
+            blockHash = EntityUtils.toString(getResponse.getEntity(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            getResponse.close();
+        }
 
         return null;
     }
