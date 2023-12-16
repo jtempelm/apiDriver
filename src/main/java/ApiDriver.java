@@ -38,14 +38,14 @@ public class ApiDriver {
      */
     public static final String HOSTNAME = "https://blockstream.info";
     public String QueryApi() throws IOException {
-        final String uri = "/api/block-height/680000";
-
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpGet getBlockHashGivenHeight = new HttpGet(HOSTNAME + uri);
+        CloseableHttpResponse getResponse = null;
 
         //GET /block-height/:height
         //using the height 680000 get the block hash
-        CloseableHttpResponse getResponse = null;
+        String uri = "/api/block-height/680000";
+        HttpGet getBlockHashGivenHeight = new HttpGet(HOSTNAME + uri);
+
         String blockHash = "";
         try {
             getResponse = httpclient.execute(getBlockHashGivenHeight);
@@ -58,18 +58,19 @@ public class ApiDriver {
 
         //using the block hash
         //GET /block/:hash/txs[/:start_index]
-        final String uri = "api/block/"+blockHash+"/txs/";
-        HttpGet getTransactionsGiven = new HttpGet(HOSTNAME + uri);
-        //loop per 25
+        uri = "/api/block/"+blockHash+"/txs";
+        HttpGet getTransactions = new HttpGet(HOSTNAME + uri);
+
+        String txs = "";
         try {
-            getResponse = httpclient.execute(getBlockHashGivenHeight);
-            blockHash = EntityUtils.toString(getResponse.getEntity(), StandardCharsets.UTF_8);
+            getResponse = httpclient.execute(getTransactions);
+            txs = EntityUtils.toString(getResponse.getEntity(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             getResponse.close();
         }
 
-        return null;
+        return txs;
     }
 }

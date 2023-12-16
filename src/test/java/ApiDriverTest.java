@@ -9,8 +9,8 @@ public class ApiDriverTest {
 
     @Test
     public void queryApiTest() throws IOException {
-        String responseCode = apiDriver.QueryApi();
+        String response = apiDriver.QueryApi();
 
-        Assertions.assertEquals(responseCode, "200");
+        Assertions.assertNotNull(response);
     }
 }
